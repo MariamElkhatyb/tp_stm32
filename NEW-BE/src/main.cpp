@@ -21,31 +21,36 @@ uint16_t voltageToDACValue(float voltage) {
     return constrain(dacValue, 0, maxDACValue);  // S'assurer que la valeur est entre 0 et 4095
 }
 
+// Fonction de modulation ASK
+void modulateASK(uint8_t octet) {
+    // Lire les bits de l'octet et générer la modulation ASK
+    for (int i = 0; i < 8; i++) {
+        bool bit = (octet >> (7 - i)) & 0x01; // Lire les bits du plus significatif au moins significatif
+        
+        // Envoyer une valeur élevée pour '1'
+        uint16_t DACvalue = voltageToDACValue(bitToVoltage(bit));
+        analogWrite(A2, DACvalue);
+       
+        // Pause de la durée Tb pour respecter la période du bit
+        delayMicroseconds(BIT_PERIOD);
+    }
+}
+
 void setup() {
     // Initialisation du port série pour débogage
     Serial.begin(9600);
     // Initialisation du DAC (généralement géré automatiquement dans STM32);
     Serial.println("Modulation ASK démarrée...");
-     analogWriteResolution(12);
+    analogWriteResolution(12);
 }
 
 void loop() {
-    // Choisir un octet à transmettre (par exemple 0b10101010)
+    // Exemple d'octet à transmettre (par exemple 0b11001100)
     uint8_t octet = 0b11001100;
-
-    // Lire les bits de l'octet et générer la modulation ASK
-    for (int i = 0; i < 8; i++) {
-        bool bit = (octet >> (7 - i)) & 0x01; // Lire les bits du plus significatif au moins significatif
-        
-        
-        // Envoyer une valeur élevée pour '1'
-        uint16_t DACvalue= voltageToDACValue(bitToVoltage(bit));
-
-        analogWrite(A2, DACvalue );
-       
-        // Pause de la durée Tb pour respecter la période du bit
-        delayMicroseconds(BIT_PERIOD);
-    }
     
-    // Répéter en boucle
+    // Appel de la fonction de modulation ASK
+    modulateASK(octet);
+    
+    // Ajouter un délai pour éviter une modulation continue trop rapide
+    delay(1000);
 }
