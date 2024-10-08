@@ -1,5 +1,5 @@
 #include <Arduino.h>
-
+ 
 // Paramètres de modulation
 #define HIGH_AMPLITUDE 4095  // Amplitude élevée pour '1' (valeur max du DAC 12 bits)
 #define LOW_AMPLITUDE 0      // Amplitude basse pour '0'
